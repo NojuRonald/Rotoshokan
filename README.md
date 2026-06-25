@@ -1,60 +1,130 @@
-# Rotoshokan
+```markdown
+# ROtoshokanD 📚
 
-Auto-searching for e-books in a library using your phone camera. Point your camera at a book (ISBN, barcode, or cover), and Rotoshokan will search Google Books (or other configured sources) to quickly locate metadata and links to the book. The project can run on refurbished phones acting as lightweight servers and be accessed remotely via ngrok.
+[![Platform: Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)
+[![Language: Kotlin](https://img.shields.io/badge/Language-Kotlin-purple.svg)](https://kotlinlang.org)
+[![UI Framework: Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20%2F%20M3-ff69b4.svg)](https://developer.android.com/jetpack/compose)
+[![OCR: Google ML Kit](https://img.shields.io/badge/OCR-Google%20ML%20Kit-blue.svg)](https://developers.google.com/ml-kit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Features
-- Scan ISBN, barcode, or book cover using the camera.
-- Query Google Books (or other configured APIs) to find matching e-book metadata.
-- Designed to run on low-cost or refurbished phones as small servers.
-- Optional remote access using ngrok so devices don't need to be on the same local network.
+**ROtoshokanD** is a native Android application built with Kotlin and Jetpack Compose that modernizes your physical library browsing experience. 
 
-## Requirements
-- A device with a camera (Android phone recommended for phone-server mode).
-- The runtime for this project (check the repository for a package.json, build.gradle, or requirements.txt for exact requirements).
-- (Optional) ngrok account and client for exposing the local server to the internet.
-- Google Books API key (recommended) or other book search API credentials if configured.
+Using your device's camera, the app captures text layouts from book covers, extracts them into structured individual lines using on-device machine learning (Google ML Kit), and allows you to dynamically select specific lines to compile a clean search query. This query is then sent to a remote, upcycled server endpoint running on an old smartphone to fetch digital eBook links from the Google Books library database.
 
-## Quick start
-1. Clone the repository:
+---
 
-   git clone https://github.com/NojuRonald/Rotoshokan.git
-   cd Rotoshokan
+## 🚀 Key Features
 
-2. Install dependencies
+* **Interactive OCR Query Builder:** Instead of sending unpolished or chaotic raw text data, the app splits parsed text blocks into clean, horizontal lines. These are fed into a scrollable `LazyRow` layout as individual `SuggestionChip` components. You tap exactly which text fragments (like specific Title or Author names) to bundle into your final search query.
+* **Low-Latency CameraX Integration:** Utilizes `androidx.camera` with an optimization profile (`CAPTURE_MODE_MINIMIZE_LATENCY`) bound directly to the Composable component's active lifecycle context.
+* **Material Design 3 Dashboard:** Designed completely with modern Material 3 assets including a real-time targeting scanner overlay, conditional loading states, and an isolated `SelectionContainer` layout scope so you can easily copy returned digital URLs.
+* **Asynchronous Network Resiliency:** Implements non-blocking background queue execution using `OkHttpClient` to handle payload delivery and catch transmission exceptions smoothly.
 
-   npm install
+---
 
-   If this project uses another package manager or runtime, use the appropriate install command (yarn, pip, Gradle, etc.).
+## 🛠️ Tech Stack & Dependencies
 
-3. Configure environment
+| Category | Technology Used | Version / Details |
+| :--- | :--- | :--- |
+| **Language** | Kotlin | Modern Android Native |
+| **UI Framework** | Jetpack Compose | Material 3 Components |
+| **Camera API** | CameraX | v1.3.1 (Core, Camera2, Lifecycle, View) |
+| **OCR Engine** | Google ML Kit | v16.0.0 (Text Recognition - Latin) |
+| **Networking** | OkHttp | v4.12.0 (Asynchronous Requests) |
 
-   - Create a .env or configuration file at the project root (see the repo for an example). Typical variables you might need:
-     - GOOGLE_BOOKS_API_KEY=your_api_key_here
-     - NGROK_AUTH_TOKEN=your_ngrok_token_here
+---
 
-4. Run the server (example)
+## 🔗 Architecture & System Data Flow
 
-   npm run start
 
-   Or the command used by this repository (check package.json or other start scripts).
+```
 
-5. (Optional) Expose with ngrok
+┌──────────────────────────────────────┐
+│             ROtoshokanD              │
+│    CameraX Capture -> ML Kit OCR     │
+└──────────────────────────────────────┘
+│
+│  1. POST JSON Payload: {"ocrText": "Selected Strings"}
+▼
+┌──────────────────────────────────────┐
+│         Ngrok Tunnel Gateway         │
+│   blabber-garage-contempt.ngrok...   │
+└──────────────────────────────────────┘
+│
+│  2. Forward Proxy Route
+▼
+┌──────────────────────────────────────┐
+│        Termux Node.js Server         │
+│        (Upcycled Old Phone)          │
+└──────────────────────────────────────┘
+│
+│  3. Queries API & returns JSON payload
+▼
+┌──────────────────────────────────────┐
+│  JSON Object {downloadUrl, title}    │
+└──────────────────────────────────────┘
 
-   ngrok http 3000
+```
 
-   Replace 3000 with the server port used by this project.
+---
 
-6. Open the app on the device or point your camera (or device's browser) to the server URL. If using ngrok, use the generated public URL.
+## 📦 Getting Started
 
-## Notes
-- This README is generic; if any of the commands above don't match the codebase, open the relevant files (package.json, build.gradle, or other config files) and follow the implemented start instructions.
-- If you intend to run multiple phones as servers, ensure each device has a unique ngrok tunnel or port mapping.
+### Hardware Permissions Required
+The application uses modern permission contract launchers to ask for camera hardware access directly inside the application lifecycle flow. Ensure the following configurations stay declared inside your `AndroidManifest.xml`:
 
-## Contributing
-Contributions are welcome. Please open issues for bugs or feature requests, and send pull requests for changes. Include a clear description of your changes and any setup required to test them.
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.INTERNET" />
 
-## License
-Specify a license for this project (e.g., MIT) by adding a LICENSE file to the repository.
+<application android:usesCleartextTraffic="true" ...>
 
-## Contact
-If you want help improving this README with project-specific commands or environment examples, tell me which files in the repo show the server startup commands (for example, package.json or MainActivity.kt) and I will update the README accordingly.
+```
+
+### Server Endpoint Setup
+
+Before compiling your build variants, update the `serverIp` target string literal inside `MainActivity.kt` to align with the active Ngrok forwarding proxy address generated by your old phone server instance:
+
+```kotlin
+// Located inside the LensScannerScreen Composable
+val serverIp = "[https://your-active-session-subdomain.ngrok-free.dev](https://your-active-session-subdomain.ngrok-free.dev)"
+
+```
+
+### Installation and Building
+
+1. **Clone the repository:**
+```bash
+git clone [https://github.com/NojuRonald/Rotoshokan.git](https://github.com/NojuRonald/Rotoshokan.git)
+
+```
+
+
+2. Open the project inside **Android Studio**.
+3. Allow Gradle to sync project structures and download standard dependencies.
+4. Connect an Android target testing device via USB debugging or start an emulator instance.
+5. Hit **Run** (`Shift + F10`) or run the build sequence directly from your terminal workspace window:
+```bash
+./gradlew assembleDebug
+
+```
+
+
+
+---
+
+## 🤝 Companion Repository
+
+This frontend repository relies completely on a live, responsive endpoint listening interface managed by your server script setup. To explore the automation terminal scripts, hosting environments, and payload processing routes running on the upcycled device hardware layer, check out the backend workspace:
+
+👉 **[Termux-Backend-Ngrok-Server-For-Old-Phones](https://www.google.com/search?q=https://github.com/YOUR-USERNAME/Termux-Backend-Ngrok-Server-For-Old-Phones)**
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+```
+
+```
