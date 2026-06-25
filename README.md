@@ -1,4 +1,3 @@
-```markdown
 # ROtoshokanD 📚
 
 [![Platform: Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)
@@ -7,18 +6,36 @@
 [![OCR: Google ML Kit](https://img.shields.io/badge/OCR-Google%20ML%20Kit-blue.svg)](https://developers.google.com/ml-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**ROtoshokanD** is a native Android application built with Kotlin and Jetpack Compose that modernizes your physical library browsing experience. 
+**ROtoshokanD** is a native Android application built with Kotlin and
+Jetpack Compose that modernizes your physical library browsing experience. 
 
-Using your device's camera, the app captures text layouts from book covers, extracts them into structured individual lines using on-device machine learning (Google ML Kit), and allows you to dynamically select specific lines to compile a clean search query. This query is then sent to a remote, upcycled server endpoint running on an old smartphone to fetch digital eBook links from the Google Books library database.
+Using your device's camera, the app captures text layouts from book covers,
+extracts them into structured individual lines using on-device machine
+learning (Google ML Kit), and allows you to dynamically select specific
+lines to compile a clean search query. This query is then sent to a
+remote, upcycled server endpoint running on an old smartphone to fetch
+digital eBook links from the Google Books library database.
 
 ---
 
 ## 🚀 Key Features
 
-* **Interactive OCR Query Builder:** Instead of sending unpolished or chaotic raw text data, the app splits parsed text blocks into clean, horizontal lines. These are fed into a scrollable `LazyRow` layout as individual `SuggestionChip` components. You tap exactly which text fragments (like specific Title or Author names) to bundle into your final search query.
-* **Low-Latency CameraX Integration:** Utilizes `androidx.camera` with an optimization profile (`CAPTURE_MODE_MINIMIZE_LATENCY`) bound directly to the Composable component's active lifecycle context.
-* **Material Design 3 Dashboard:** Designed completely with modern Material 3 assets including a real-time targeting scanner overlay, conditional loading states, and an isolated `SelectionContainer` layout scope so you can easily copy returned digital URLs.
-* **Asynchronous Network Resiliency:** Implements non-blocking background queue execution using `OkHttpClient` to handle payload delivery and catch transmission exceptions smoothly.
+* **Interactive OCR Query Builder:** Instead of sending unpolished or
+  chaotic raw text data, the app splits parsed text blocks into clean,
+  horizontal lines. These are fed into a scrollable `LazyRow` layout as
+  individual `SuggestionChip` components. You tap exactly which text
+  fragments (like specific Title or Author names) to bundle into your
+  final search query.
+* **Low-Latency CameraX Integration:** Utilizes `androidx.camera` with an
+  optimization profile (`CAPTURE_MODE_MINIMIZE_LATENCY`) bound directly
+  to the Composable component's active lifecycle context.
+* **Material Design 3 Dashboard:** Designed completely with modern Material
+  3 assets including a real-time targeting scanner overlay, conditional
+  loading states, and an isolated `SelectionContainer` layout scope so
+  you can easily copy returned digital URLs.
+* **Asynchronous Network Resiliency:** Implements non-blocking background
+  queue execution using `OkHttpClient` to handle payload delivery and
+  catch transmission exceptions smoothly.
 
 ---
 
@@ -35,96 +52,3 @@ Using your device's camera, the app captures text layouts from book covers, extr
 ---
 
 ## 🔗 Architecture & System Data Flow
-
-
-```
-
-┌──────────────────────────────────────┐
-│             ROtoshokanD              │
-│    CameraX Capture -> ML Kit OCR     │
-└──────────────────────────────────────┘
-│
-│  1. POST JSON Payload: {"ocrText": "Selected Strings"}
-▼
-┌──────────────────────────────────────┐
-│         Ngrok Tunnel Gateway         │
-│   blabber-garage-contempt.ngrok...   │
-└──────────────────────────────────────┘
-│
-│  2. Forward Proxy Route
-▼
-┌──────────────────────────────────────┐
-│        Termux Node.js Server         │
-│        (Upcycled Old Phone)          │
-└──────────────────────────────────────┘
-│
-│  3. Queries API & returns JSON payload
-▼
-┌──────────────────────────────────────┐
-│  JSON Object {downloadUrl, title}    │
-└──────────────────────────────────────┘
-
-```
-
----
-
-## 📦 Getting Started
-
-### Hardware Permissions Required
-The application uses modern permission contract launchers to ask for camera hardware access directly inside the application lifecycle flow. Ensure the following configurations stay declared inside your `AndroidManifest.xml`:
-
-```xml
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.INTERNET" />
-
-<application android:usesCleartextTraffic="true" ...>
-
-```
-
-### Server Endpoint Setup
-
-Before compiling your build variants, update the `serverIp` target string literal inside `MainActivity.kt` to align with the active Ngrok forwarding proxy address generated by your old phone server instance:
-
-```kotlin
-// Located inside the LensScannerScreen Composable
-val serverIp = "[https://your-active-session-subdomain.ngrok-free.dev](https://your-active-session-subdomain.ngrok-free.dev)"
-
-```
-
-### Installation and Building
-
-1. **Clone the repository:**
-```bash
-git clone [https://github.com/NojuRonald/Rotoshokan.git](https://github.com/NojuRonald/Rotoshokan.git)
-
-```
-
-
-2. Open the project inside **Android Studio**.
-3. Allow Gradle to sync project structures and download standard dependencies.
-4. Connect an Android target testing device via USB debugging or start an emulator instance.
-5. Hit **Run** (`Shift + F10`) or run the build sequence directly from your terminal workspace window:
-```bash
-./gradlew assembleDebug
-
-```
-
-
-
----
-
-## 🤝 Companion Repository
-
-This frontend repository relies completely on a live, responsive endpoint listening interface managed by your server script setup. To explore the automation terminal scripts, hosting environments, and payload processing routes running on the upcycled device hardware layer, check out the backend workspace:
-
-👉 **[Termux-Backend-Ngrok-Server-For-Old-Phones](https://www.google.com/search?q=https://github.com/YOUR-USERNAME/Termux-Backend-Ngrok-Server-For-Old-Phones)**
-
----
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-```
-
-```
