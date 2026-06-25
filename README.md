@@ -52,3 +52,23 @@ digital eBook links from the Google Books library database.
 ---
 
 ## 🔗 Architecture & System Data Flow
+
+```mermaid
+graph TD
+    A[📱 ROtoshokanD Android App<br>CameraX Capture + ML Kit OCR] -->|1. POST JSON Search Payload| B(🌐 Ngrok Tunnel Gateway)
+    B -->|2. Forward Proxy Route| C(🔌 Termux Node.js Server<br>Hosted on Old Smartphone)
+    C -->|3. Fetch Book Link Metadata| D[📚 Google Books API]
+    D -->|4. Return Download JSON| C
+    C -->|5. Deliver Target URL| A
+
+## 🤝 Companion Repository
+
+This frontend repository relies completely on a live, responsive endpoint listening interface managed by your server script setup. To explore the automation terminal scripts, hosting environments, and payload processing routes running on the upcycled device hardware layer, check out the backend workspace:
+
+👉 **[Termux-Backend-Ngrok-Server-For-Old-Phones](https://github.com/NojuRonald/Termux-Backend-Ngrok-Server-For-Old-Phones)**
+
+---
+
+## 📝 License
+
+Distributed under the **MIT License**. See the `LICENSE` file for more details.
