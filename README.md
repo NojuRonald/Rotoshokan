@@ -53,7 +53,7 @@ digital eBook links from the Google Books library database.
 
 ## 🔗 Architecture & System Data Flow
 
-```mermaid
+`mermaid
 graph TD
     A[📱 ROtoshokanD Android App<br>CameraX Capture + ML Kit OCR] -->|1. POST JSON Search Payload| B(🌐 Ngrok Tunnel Gateway)
     B -->|2. Forward Proxy Route| C(🔌 Termux Node.js Server<br>Hosted on Old Smartphone)
