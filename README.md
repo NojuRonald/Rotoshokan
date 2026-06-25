@@ -18,6 +18,29 @@ digital eBook links from the Google Books library database.
 
 ---
 
+---
+
+## 📸 Demo & Visual Workflow
+
+Here is exactly how the on-device text-tokenization pipeline parses real-world items into clean metadata packages:
+
+### 1️⃣ Point & Frame (Live Slate)
+The camera interface utilizes **CameraX** to monitor the canvas frame. It draws real-time bounding boxes around text line items discovered within the focus window, resetting instantly when moving to new targets.
+
+![1. Point and Frame](docs/step1.jpg)
+
+### 2️⃣ Map Lines & Select Target Terms
+Once text lines are securely mapped on screen, the application automatically tokenizes the string structure into **interactive text chips**. You can selectively tap individual terms to dynamically stitch together your target search query on the fly.
+
+![2. Map Lines and Tokens](docs/step2.jpg)
+
+### 3️⃣ Dispatch Payload & Fetch Digital Match
+Tapping the action trigger pipes the filtered string to your custom backend server architecture. The server processes the query and returns the clean digital record link directly into an expandable user action panel.
+
+![3. Pull Match Result](docs/step3.jpg)
+
+---
+
 ## 🚀 Key Features
 
 * **Interactive OCR Query Builder:** Instead of sending unpolished or
